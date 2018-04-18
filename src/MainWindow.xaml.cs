@@ -23,6 +23,8 @@ namespace src
         public MainWindow()
         {
             InitializeComponent();
+            KraKenClient.C_client test = new KraKenClient.C_client();
+
         }
     }
 }
