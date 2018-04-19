@@ -25,6 +25,24 @@
                 <Separator />
                 <MenuItem Header="_Exit"  IsTextSearchCaseSensitive="True"/>
             </MenuItem>
+            <TextBlock TextWrapping="Wrap" Text="Select asset:" VerticalAlignment="Center"/>
+            <ComboBox Name="cbx01AssetPairs" Width="120" VerticalAlignment="Center"/>
+            <Button Content="Create Chart" VerticalAlignment="Center" Width="85"/>
         </Menu>
+        <TabControl  HorizontalAlignment="Stretch" 
+                     VerticalAlignment="Stretch"
+                     Margin="0,5,0,0" 
+                     Grid.Row="1"
+                     Grid.ColumnSpan="3"
+                     Grid.RowSpan="2">
+            <TabItem Header="Linear">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Header="Log">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+        </TabControl>
+
+
     </Grid>
 </Window>

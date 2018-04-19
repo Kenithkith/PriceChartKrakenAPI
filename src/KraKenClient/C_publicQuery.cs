@@ -15,7 +15,7 @@ public class C_publicQuery
     //Get a public list of tradable asset pairs
     public JsonObject M_getActiveAsset(List<string> pairs)
     {
-        return (JsonObject)QueryPublic("Assets");
+        return (JsonObject)QueryPublic("AssetPairs");
 
     }
 

@@ -23,7 +23,15 @@ namespace src
         public MainWindow()
         {
             InitializeComponent();
-            KraKenClient.C_client test = new KraKenClient.C_client();
+
+            // get the list of tradable asset on KraKen 
+            KraKenClient.Inf_client Inf_KkClient = new KraKenClient.C_client();
+            List<string> listTradeAsset = Inf_KkClient.M_giveListOfTradeAsset(true);
+            if (listTradeAsset.Count > 0)
+            {
+                this.cbx01AssetPairs.ItemsSource = listTradeAsset;
+                this.cbx01AssetPairs.SelectedValue = this.cbx01AssetPairs.Items[0];
+            }
 
         }
     }

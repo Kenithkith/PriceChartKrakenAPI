@@ -8,15 +8,9 @@ namespace KraKenClient
 {
     public class C_client : Inf_client
     {
-        private C_publicQuery C_publicQ;
+        private C_publicQuery C_publicQ = new C_publicQuery();
 
-
-        public C_client()
-        {
-            this.C_publicQ = new C_publicQuery();
-        }
-
-        public List<string> M_getTradeAsset(Boolean bool_skipDarkPool)
+        public List<string> M_giveListOfTradeAsset(Boolean bool_skipDarkPool)
         {
 
             // get json from Kraken
