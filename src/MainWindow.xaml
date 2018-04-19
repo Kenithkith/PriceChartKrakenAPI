@@ -29,12 +29,12 @@
             <ComboBox Name="cbx01AssetPairs" Width="120" VerticalAlignment="Center"/>
             <Button Content="Create Chart" VerticalAlignment="Center" Width="85"/>
         </Menu>
-        <TabControl  HorizontalAlignment="Stretch" 
-                     VerticalAlignment="Stretch"
-                     Margin="0,5,0,0" 
-                     Grid.Row="1"
+
+        <TabControl  Grid.Row="1" 
                      Grid.ColumnSpan="3"
-                     Grid.RowSpan="2">
+                     HorizontalAlignment="Stretch" 
+                     VerticalAlignment="Stretch"
+                     Margin="0,0,0,0" >
             <TabItem Header="Linear">
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
@@ -42,6 +42,18 @@
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
         </TabControl>
+
+
+        <TextBlock Grid.Row="2"
+                   Grid.Column="1" 
+                   TextWrapping="Wrap" 
+                   Text="please select an asset..."
+                   TextAlignment="Right"
+                   VerticalAlignment="Center"/>
+        <ProgressBar  Grid.Row="2"
+                      Grid.Column="2" 
+                      HorizontalAlignment="Stretch" 
+                      VerticalAlignment="Stretch"/>
 
 
     </Grid>
