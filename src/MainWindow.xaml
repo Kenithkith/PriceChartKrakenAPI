@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:local="clr-namespace:src"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
@@ -36,13 +37,17 @@
                      VerticalAlignment="Stretch"
                      Margin="0,0,0,0" >
             <TabItem Header="Linear">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <lvc:CartesianChart Series="{Binding SeriesCollection}" />
+                </Grid>
             </TabItem>
             <TabItem Header="Log">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <lvc:CartesianChart Series="{Binding SeriesCollection2}" />
+                </Grid>
+
             </TabItem>
         </TabControl>
-
 
         <TextBlock Grid.Row="2"
                    Grid.Column="1" 

@@ -10,6 +10,9 @@ namespace src
     /// </summary>
     public partial class MainWindow : Window
     {
+        public SeriesCollection liveChartLinear { get; set; }
+        public SeriesCollection liveChartLog { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -23,6 +26,29 @@ namespace src
                 this.cbx01AssetPairs.SelectedValue = this.cbx01AssetPairs.Items[0];
             }
 
+            liveChartLinear = new SeriesCollection
+            { 
+                new LineSeries
+                {
+                    Values = new ChartValues<double> { 0 }
+                },
+                new ColumnSeries
+                {
+                    Values = new ChartValues<decimal> { 0 }
+                }
+            };
+
+            liveChartLog = new SeriesCollection
+            {
+                new LineSeries
+                {
+                    Values = new ChartValues<double> { 0 }
+                },
+                new ColumnSeries
+                {
+                    Values = new ChartValues<decimal> { 0 }
+                }
+            };
         }
     }
 }
