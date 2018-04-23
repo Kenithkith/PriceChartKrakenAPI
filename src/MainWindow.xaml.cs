@@ -12,14 +12,14 @@ namespace src
     {
         public SeriesCollection liveChartLinear { get; set; }
         public SeriesCollection liveChartLog { get; set; }
+        private KraKenClient.Inf_client Inf_KkClient = new KraKenClient.C_client();
 
         public MainWindow()
         {
             InitializeComponent();
 
             // get the list of tradable asset on KraKen 
-            KraKenClient.Inf_client Inf_KkClient = new KraKenClient.C_client();
-            List<string> listTradeAsset = Inf_KkClient.M_giveListOfTradeAsset(true);
+            List<string> listTradeAsset = this.Inf_KkClient.M_giveListOfTradeAsset(true);
             if (listTradeAsset.Count > 0)
             {
                 this.cbx01AssetPairs.ItemsSource = listTradeAsset;
@@ -49,6 +49,19 @@ namespace src
                     Values = new ChartValues<decimal> { 0 }
                 }
             };
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            string strPair = this.cbx01AssetPairs.SelectedValue.ToString().Trim();
+
+            dynamic c_ohlc;
+            do
+            {
+                System.Threading.Thread.Sleep(5000);
+                c_ohlc = this.Inf_KkClient.M_giveOhlc(strPair);
+            } while (c_ohlc.error != null);
+
         }
     }
 }

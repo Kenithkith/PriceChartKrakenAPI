@@ -1,5 +1,4 @@
 ﻿using System;
-using KraKenClient;
 using System.Net;
 using System.IO;
 using Jayrock.Json;
@@ -12,13 +11,23 @@ public class C_publicQuery
     {
     }
 
-    //Get a public list of tradable asset pairs
-    public JsonObject M_getActiveAsset(List<string> pairs)
+    // Get list of tradable asset pairs
+    public JsonObject M_getActiveAsset()
     {
         return (JsonObject)QueryPublic("AssetPairs");
-
     }
 
+    // Get Ohlc data of a particular asset
+    public JsonObject M_getOhlc(string strPair, int intInterval, long lgSince)
+    {
+        string strParameter = string.Format("pair={0}", strPair) 
+                            + string.Format("&interval={0}", intInterval.ToString())
+                            + string.Format("&since={0}", lgSince.ToString());
+
+        return (JsonObject)QueryPublic("OHLC", strParameter);
+    }
+
+    // call KraKen API
     private JsonObject QueryPublic(string strMethod, string strOtherProp = null)
     {
         string strAddress = string.Format("{0}/{1}/public/{2}", C_config.strUrl, C_config.strVersion, strMethod);

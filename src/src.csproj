@@ -81,6 +81,7 @@
     <Compile Include="KraKenClient\C_client.cs" />
     <Compile Include="KraKenClient\C_config.cs" />
     <Compile Include="KraKenClient\C_publicQuery.cs" />
+    <Compile Include="KraKenClient\C_struct.cs" />
     <Compile Include="KraKenClient\Inf_client.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -88,6 +89,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\C_Ohlc.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -114,9 +116,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Model\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>

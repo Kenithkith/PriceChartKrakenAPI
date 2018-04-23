@@ -28,7 +28,7 @@
             </MenuItem>
             <TextBlock TextWrapping="Wrap" Text="Select asset:" VerticalAlignment="Center"/>
             <ComboBox Name="cbx01AssetPairs" Width="120" VerticalAlignment="Center"/>
-            <Button Content="Create Chart" VerticalAlignment="Center" Width="85"/>
+            <Button Content="Create Chart" VerticalAlignment="Center" Width="85" Click="Button_Click"/>
         </Menu>
 
         <TabControl  Grid.Row="1" 
