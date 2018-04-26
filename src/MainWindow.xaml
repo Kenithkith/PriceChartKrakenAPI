@@ -32,10 +32,10 @@
             <TextBlock TextWrapping="Wrap" Text="Select asset:" VerticalAlignment="Center"/>
             <ComboBox Name="cbx01AssetPairs" Width="80" VerticalAlignment="Center"/>
             <TextBlock TextWrapping="Wrap" Text="Log base:" VerticalAlignment="Center"/>
-            <extToolkit:WatermarkTextBox Name="tbx01LogBase" 
-                                         Watermark="10"
-                                         Width="80"  
-                                         VerticalAlignment="Center"/>
+            <TextBox Name="tbx01LogBase" 
+                     Text="10"
+                    Width="80"  
+                    VerticalAlignment="Center"/>
             <StackPanel Orientation="Horizontal" >
                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
             </StackPanel>
@@ -68,7 +68,7 @@
                 <Grid Background="#FFE5E5E5">
                     <lvc:CartesianChart Series="{Binding liveChartLog}" >
                         <lvc:CartesianChart.AxisY>
-                            <lvc:Axis Title="Price" 
+                            <lvc:Axis Title="Price in log" 
                                       LabelFormatter="{Binding YFormatLog}">
                             </lvc:Axis>
                         </lvc:CartesianChart.AxisY>
@@ -84,7 +84,8 @@
             </TabItem>
         </TabControl>
 
-        <TextBlock Grid.Row="2"
+        <TextBlock Name="tbk01StausMsg"
+                   Grid.Row="2"
                    Grid.Column="1" 
                    TextWrapping="Wrap" 
                    Text="please select an asset..."

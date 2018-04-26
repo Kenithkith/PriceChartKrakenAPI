@@ -11,10 +11,24 @@ namespace src.Model
         public int intInterval { get; set; }
         public long longSince { get; set; }
         public string strPair { get; set; }
-        public List<List<string>> result { get; set; }
-        public List<string> date { get; set; }
-        public List<double> closePrice { get; set; }
-        public List<string> error { get; set; }
+        public List<List<string>> listOfListResult { get; set; }
+        public List<string> listDate { get; set; }
+        public List<double> listClosePrice { get; set; }
+        public List<double> listClosePriceInLog { get; set; }
+        public List<string> listError { get; set; }
+
+        public void M_convertClosePriceToLog(double dbBase)
+        {
+            if (this.listClosePrice == null || this.listClosePrice.Count == 0)
+                return;
+
+            List<double> listOfPrice = new List<double>(listClosePrice);
+            this.listClosePriceInLog = new List<double>();
+            foreach(double dbNum in listOfPrice)
+            {
+                this.listClosePriceInLog.Add(Math.Log(dbNum, dbBase));
+            }
+        }
 
     }
 }

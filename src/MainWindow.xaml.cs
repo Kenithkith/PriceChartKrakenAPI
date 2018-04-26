@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Media;
 using LiveCharts;
 using LiveCharts.Wpf;
 using LiveCharts.Helpers;
-using System;
+
 
 namespace src
 {
@@ -65,14 +67,28 @@ namespace src
             // get the asset user selected
             string strPair = this.cbx01AssetPairs.SelectedValue.ToString().Trim();
 
+            // get log base user entered
+            if (!this.M_isLogBaseANum())
+            {
+                tbk01StausMsg.Text = "Log base shoud be a number.";
+                tbk01StausMsg.Foreground = Brushes.Red;
+                return;
+            }
+            else
+            {
+                tbk01StausMsg.Text = "Loading...";
+                tbk01StausMsg.Foreground = Brushes.Black;
+            }
+            double dbLogBase = Double.Parse(tbx01LogBase.Text);
+
             // call KraKen API and convert its jason file to an object
             dynamic c_ohlc;
             do
             {
                 System.Threading.Thread.Sleep(5000);
-                c_ohlc = this.Inf_KkClient.M_giveOhlc(strPair);
+                c_ohlc = this.Inf_KkClient.M_giveOhlc(strPair, dbLogBase);
 
-            } while (c_ohlc.error != null);
+            } while (c_ohlc.listError != null);
 
             // clear the pervious chart
             if (this.liveChartLinear.Chart != null && this.liveChartLinear.Count > 0)
@@ -90,14 +106,32 @@ namespace src
             this.liveChartLinear.Add(new LineSeries()
             {
                 Title = c_ohlc.strPair,
-                Values = ((List<double>)c_ohlc.closePrice).AsChartValues(),
+                Values = ((List<double>)c_ohlc.listClosePrice).AsChartValues(),
             });
-            this.XValueLinear = c_ohlc.date.ToArray();
-            this.OnPropertyChanged("XValueLinear");
+            this.liveChartLog.Add(new LineSeries()
+            {
+                Title = c_ohlc.strPair,
+                Values = ((List<double>)c_ohlc.listClosePriceInLog).AsChartValues(),
+            });
+            this.XValueLinear = this.XValueLog= c_ohlc.listDate.ToArray();
+            this.OnPropertyChanged( "XValueLinear");
+            this.OnPropertyChanged("XValueLog");
             this.XFormatLinear = value => value.ToString();
+            this.XFormatLog = value => value.ToString();
 
             // update the chart
             DataContext = this;
+        }
+
+        // make sure the log base is real number
+        private Boolean M_isLogBaseANum()
+        {
+            var varUserInput = tbx01LogBase.Text;
+            double dbTemp;
+            if(!Double.TryParse(varUserInput, out dbTemp))
+                return false;
+
+            return true;
         }
 
         // a event handler
