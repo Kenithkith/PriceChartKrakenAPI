@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
-        xmlns:local="clr-namespace:src"
+        xmlns:extToolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="Price Chart Based on KraKen data" Height="350" Width="525">
     <Grid>
@@ -26,8 +26,19 @@
                 <Separator />
                 <MenuItem Header="_Exit"  IsTextSearchCaseSensitive="True"/>
             </MenuItem>
+            <StackPanel Orientation="Horizontal" >
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+            </StackPanel>
             <TextBlock TextWrapping="Wrap" Text="Select asset:" VerticalAlignment="Center"/>
-            <ComboBox Name="cbx01AssetPairs" Width="120" VerticalAlignment="Center"/>
+            <ComboBox Name="cbx01AssetPairs" Width="80" VerticalAlignment="Center"/>
+            <TextBlock TextWrapping="Wrap" Text="Log base:" VerticalAlignment="Center"/>
+            <extToolkit:WatermarkTextBox Name="tbx01LogBase" 
+                                         Watermark="10"
+                                         Width="80"  
+                                         VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" >
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+            </StackPanel>
             <Button Content="Create Chart" VerticalAlignment="Center" Width="85" Click="Button_Click"/>
         </Menu>
 
