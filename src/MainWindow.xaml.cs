@@ -16,6 +16,8 @@ namespace src
         public SeriesCollection liveChartLinear { get; set; }
         // the log chart in wpf
         public SeriesCollection liveChartLog { get; set; }
+        // the combo chart in wpf
+        public SeriesCollection liveChartCombo { get; set; }
         // a KraKen client implemented by our
         private KraKenClient.Inf_client Inf_KkClient = new KraKenClient.C_client();
         // the x-aixs value of the linear chart
@@ -28,7 +30,11 @@ namespace src
         // the x-aixs and y-axis format of the log chart
         public Func<double, string> YFormatLog { get; set; }
         public Func<double, string> XFormatLog { get; set; }
-
+        // the x-aixs value of the combo chart
+        public string[] XValueCombo { get; set; }
+        // the x-aixs and y-axis format of the combo chart
+        public Func<double, string> YFormatCombo { get; set; }
+        public Func<double, string> XFormatCombo { get; set; }
 
         public MainWindow()
         {
@@ -41,25 +47,12 @@ namespace src
                 this.cbx01AssetPairs.ItemsSource = listTradeAsset;
                 this.cbx01AssetPairs.SelectedValue = this.cbx01AssetPairs.Items[0];
             }
+    
+            // dummy charts
+            this.liveChartLinear = new SeriesCollection { };
+            this.liveChartLog = new SeriesCollection { };
+            this.liveChartCombo= new SeriesCollection { };
 
-            // two dummy chart
-            liveChartLinear = new SeriesCollection
-            { 
-                new LineSeries
-                {
-                    Values = new ChartValues<double> { 0 }
-                },
-            };
-            liveChartLog = new SeriesCollection
-            {
-                new LineSeries
-                {
-                    Values = new ChartValues<double> { 0 }
-                },
-            };
-
-            // update the chart
-            DataContext = this;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -91,7 +84,7 @@ namespace src
             } while (c_ohlc.listError != null);
 
             // clear the pervious chart
-            if (this.liveChartLinear.Chart != null && this.liveChartLinear.Count > 0)
+            if (this.liveChartLinear != null && this.liveChartLinear.Count > 0)
             {
                 foreach (Series chart in this.liveChartLinear)
                 { this.liveChartLinear.Remove(chart); }
@@ -100,6 +93,11 @@ namespace src
             {
                 foreach (Series chart in this.liveChartLog)
                 { this.liveChartLog.Remove(chart); }
+            }
+            if (this.liveChartCombo.Chart != null && this.liveChartCombo.Count > 0)
+            {
+                foreach (Series chart in this.liveChartCombo)
+                { this.liveChartCombo.Remove(chart); }
             }
 
             // display the price chart
@@ -113,11 +111,25 @@ namespace src
                 Title = c_ohlc.strPair,
                 Values = ((List<double>)c_ohlc.listClosePriceInLog).AsChartValues(),
             });
-            this.XValueLinear = this.XValueLog= c_ohlc.listDate.ToArray();
+            this.liveChartCombo.Add(new LineSeries()
+            {
+                Title = c_ohlc.strPair,
+                Values = ((List<double>)c_ohlc.listClosePrice).AsChartValues(),
+                ScalesYAt = 0
+            });
+            this.liveChartCombo.Add(new LineSeries()
+            {
+                Title = "log(price)",
+                Values = ((List<double>)c_ohlc.listClosePriceInLog).AsChartValues(),
+                ScalesYAt = 1
+            });
+            this.XValueLinear = this.XValueLog = this.XValueCombo = c_ohlc.listDate.ToArray();
             this.OnPropertyChanged( "XValueLinear");
             this.OnPropertyChanged("XValueLog");
+            this.OnPropertyChanged("XValueCombo");
             this.XFormatLinear = value => value.ToString();
             this.XFormatLog = value => value.ToString();
+            this.XFormatCombo = value => value.ToString();
 
             // update the chart
             DataContext = this;
@@ -137,7 +149,7 @@ namespace src
         // a event handler
         public event PropertyChangedEventHandler PropertyChanged;
 
-        // event to update the wpf component's Property
+        // event to update the wpf component's pgroperty
         protected virtual void OnPropertyChanged(string propertyName = null)
         {
             if (PropertyChanged != null) PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
