@@ -6,7 +6,8 @@ using System.Windows.Media;
 using LiveCharts;
 using LiveCharts.Wpf;
 using LiveCharts.Helpers;
-
+using System.Threading;
+using System.Windows.Threading;
 
 namespace src
 {
@@ -19,7 +20,7 @@ namespace src
         // the combo chart in wpf
         public SeriesCollection liveChartCombo { get; set; }
         // a KraKen client implemented by our
-        private KraKenClient.Inf_client Inf_KkClient = new KraKenClient.C_client();
+        private KraKenClient.Inf_client Inf_KkClient;
         // the x-aixs value of the linear chart
         public string[] XValueLinear { get; set; }
         // the x-aixs and y-axis format of the linear chart
@@ -27,8 +28,7 @@ namespace src
         public Func<double, string> XFormatLinear { get; set; }
         // the x-aixs value of the log chart
         public string[] XValueLog { get; set; }
-        // the x-aixs and y-axis format of the log chart
-        public Func<double, string> YFormatLog { get; set; }
+        // the x-aixs and y-axis format of the log chartg
         public Func<double, string> XFormatLog { get; set; }
         // the x-aixs value of the combo chart
         public string[] XValueCombo { get; set; }
@@ -40,6 +40,14 @@ namespace src
         {
             InitializeComponent();
 
+            // create KraKen client instance
+            this.Inf_KkClient = new KraKenClient.C_client(this);
+
+            // dummy charts
+            this.liveChartLinear = new SeriesCollection { };
+            this.liveChartLog = new SeriesCollection { };
+            this.liveChartCombo = new SeriesCollection { };
+
             // get the list of tradable asset on KraKen 
             List<string> listTradeAsset = this.Inf_KkClient.M_giveListOfTradeAsset(true);
             if (listTradeAsset.Count > 0)
@@ -47,41 +55,38 @@ namespace src
                 this.cbx01AssetPairs.ItemsSource = listTradeAsset;
                 this.cbx01AssetPairs.SelectedValue = this.cbx01AssetPairs.Items[0];
             }
-    
-            // dummy charts
-            this.liveChartLinear = new SeriesCollection { };
-            this.liveChartLog = new SeriesCollection { };
-            this.liveChartCombo= new SeriesCollection { };
-
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             // get the asset user selected
-            string strPair = this.cbx01AssetPairs.SelectedValue.ToString().Trim();
-
+            string strPair = (this.cbx01AssetPairs.SelectedValue ?? String.Empty).ToString().Trim();
+            if (strPair == null || String.IsNullOrWhiteSpace(strPair))
+                return;
+            
             // get log base user entered
             if (!this.M_isLogBaseANum())
             {
-                tbk01StausMsg.Text = "Log base shoud be a number.";
-                tbk01StausMsg.Foreground = Brushes.Red;
+                M_changeStatusBarMsG("Log base shoud be a number.", Brushes.Red);
                 return;
-            }
-            else
-            {
-                tbk01StausMsg.Text = "Loading...";
-                tbk01StausMsg.Foreground = Brushes.Black;
             }
             double dbLogBase = Double.Parse(tbx01LogBase.Text);
 
             // call KraKen API and convert its jason file to an object
             dynamic c_ohlc;
+            int intFailTime = 0;
             do
             {
-                System.Threading.Thread.Sleep(5000);
-                c_ohlc = this.Inf_KkClient.M_giveOhlc(strPair, dbLogBase);
+                // return if fail to call KraKen server for 5 times
+                if (intFailTime == 5)
+                    return;
 
-            } while (c_ohlc.listError != null);
+                System.Threading.Thread.Sleep(1000);
+                this.M_changeStatusBarMsG("calling KraKen server...", Brushes.Black);
+                c_ohlc = this.Inf_KkClient.M_giveOhlc(strPair, dbLogBase);
+                intFailTime++;
+
+            } while (c_ohlc == null || c_ohlc.listError != null);
 
             // clear the pervious chart
             if (this.liveChartLinear != null && this.liveChartLinear.Count > 0)
@@ -133,6 +138,8 @@ namespace src
 
             // update the chart
             DataContext = this;
+
+            this.M_changeStatusBarMsG("done.", Brushes.Black);
         }
 
         // make sure the log base is real number
@@ -146,10 +153,20 @@ namespace src
             return true;
         }
 
+        // update the message on status bar
+        public void M_changeStatusBarMsG(string strMsg, Brush color)
+        {
+            tbk01StausMsg.Text = strMsg;
+            tbk01StausMsg.Foreground = color;
+            
+            // refresh the Windows UI 
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { this.UpdateLayout(); }));
+        }
+
         // a event handler
         public event PropertyChangedEventHandler PropertyChanged;
 
-        // event to update the wpf component's pgroperty
+        // event to update the wpf component's property
         protected virtual void OnPropertyChanged(string propertyName = null)
         {
             if (PropertyChanged != null) PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));

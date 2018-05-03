@@ -1,16 +1,10 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.IO;
 using Jayrock.Json;
-using System.Collections.Generic;
 using Jayrock.Json.Conversion;
 
 public class C_publicQuery
 {
-    public C_publicQuery()
-    {
-    }
-
     // Get list of tradable asset pairs
     public JsonObject M_getActiveAsset()
     {
@@ -43,42 +37,16 @@ public class C_publicQuery
             }
         }
 
-        //Make the request
-        try
+        C_config.rgRateGate.WaitToProceed();
+        using (WebResponse webResponse = webRequest.GetResponse())
         {
-            //Wait for RateGate
-            C_config.rgRateGate.WaitToProceed();
-
-            using (WebResponse webResponse = webRequest.GetResponse())
+            using (Stream str = webResponse.GetResponseStream())
             {
-                using (Stream str = webResponse.GetResponseStream())
+                using (StreamReader sr = new StreamReader(str))
                 {
-                    using (StreamReader sr = new StreamReader(str))
-                    {
-                        return (JsonObject)JsonConvert.Import(sr);
-                    }
+                    return (JsonObject)JsonConvert.Import(sr);
                 }
             }
-        }
-        catch (WebException wex)
-        {
-            using (HttpWebResponse response = (HttpWebResponse)wex.Response)
-            {
-                using (Stream str = response.GetResponseStream())
-                {
-                    using (StreamReader sr = new StreamReader(str))
-                    {
-                        if (response.StatusCode != HttpStatusCode.InternalServerError)
-                        {
-                            throw;
-                        }
-                        return (JsonObject)JsonConvert.Import(sr);
-                    }
-                }
-            }
-
         }
     }
-
-
 }
