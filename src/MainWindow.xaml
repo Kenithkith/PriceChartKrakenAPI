@@ -114,7 +114,9 @@
                    Text="please select an asset..."
                    TextAlignment="Right"
                    VerticalAlignment="Center"/>
-        <ProgressBar  Grid.Row="2"
+        <ProgressBar  Name="pbar01"
+                      IsIndeterminate="false"
+                      Grid.Row="2"
                       Grid.Column="2" 
                       HorizontalAlignment="Stretch" 
                       VerticalAlignment="Stretch"/>

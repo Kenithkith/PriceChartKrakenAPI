@@ -97,6 +97,7 @@ namespace src.KraKenClient
             catch (WebException wex)
             {
                 this.C_appUI.M_changeStatusBarMsG("network connection fail.", Brushes.Red);
+                this.C_appUI.M_setProgressBar(false);
                 return null;
             }
         }

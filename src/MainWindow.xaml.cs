@@ -59,6 +59,9 @@ namespace src
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            // start the ProgressBar bar
+            this.pbar01.IsIndeterminate = true;
+
             // get the asset user selected
             string strPair = (this.cbx01AssetPairs.SelectedValue ?? String.Empty).ToString().Trim();
             if (strPair == null || String.IsNullOrWhiteSpace(strPair))
@@ -140,6 +143,9 @@ namespace src
             DataContext = this;
 
             this.M_changeStatusBarMsG("done.", Brushes.Black);
+
+            // end the ProgressBar bar
+            this.pbar01.IsIndeterminate = false;
         }
 
         // make sure the log base is real number
@@ -159,6 +165,15 @@ namespace src
             tbk01StausMsg.Text = strMsg;
             tbk01StausMsg.Foreground = color;
             
+            // refresh the Windows UI 
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { this.UpdateLayout(); }));
+        }
+
+        // set the status of ProgressBar
+        public void M_setProgressBar(Boolean boolInput)
+        {
+            this.pbar01.IsIndeterminate = boolInput; 
+
             // refresh the Windows UI 
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { this.UpdateLayout(); }));
         }
