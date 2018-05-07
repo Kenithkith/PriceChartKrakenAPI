@@ -8,6 +8,7 @@ using LiveCharts.Wpf;
 using LiveCharts.Helpers;
 using System.Threading;
 using System.Windows.Threading;
+using System.Windows.Controls;
 
 namespace src
 {
@@ -59,17 +60,33 @@ namespace src
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            // start the ProgressBar bar
-            this.pbar01.IsIndeterminate = true;
-
             // get the asset user selected
             string strPair = (this.cbx01AssetPairs.SelectedValue ?? String.Empty).ToString().Trim();
             if (strPair == null || String.IsNullOrWhiteSpace(strPair))
                 return;
-            
-            // get log base user entered
+
+            ThreadPool.QueueUserWorkItem(o => { this.M_callKraKenAndGeneratePriceChart(strPair);} );
+        }
+
+
+        private void M_callKraKenAndGeneratePriceChart(string strPair)
+        {
+            // start the ProgressBar bar under a thread
+            if (!Dispatcher.CheckAccess())
+                Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => this.pbar01.IsIndeterminate = true));
+            else
+                this.pbar01.IsIndeterminate = true ;
+
+            // get the value of log-base
             if (!this.M_isLogBaseANum())
             {
+                // display warming msg if case of need
+                if (!Dispatcher.CheckAccess())
+                    Dispatcher.Invoke(DispatcherPriority.Normal
+                                      , new Func<string, Brushes>(this.M_changeStatusBarMsG), "Log base shoud be a number.", Brushes.Red));
+                else
+                    this.pbar01.IsIndeterminate = true;
+
                 M_changeStatusBarMsG("Log base shoud be a number.", Brushes.Red);
                 return;
             }
@@ -132,7 +149,7 @@ namespace src
                 ScalesYAt = 1
             });
             this.XValueLinear = this.XValueLog = this.XValueCombo = c_ohlc.listDate.ToArray();
-            this.OnPropertyChanged( "XValueLinear");
+            this.OnPropertyChanged("XValueLinear");
             this.OnPropertyChanged("XValueLog");
             this.OnPropertyChanged("XValueCombo");
             this.XFormatLinear = value => value.ToString();
@@ -146,6 +163,7 @@ namespace src
 
             // end the ProgressBar bar
             this.pbar01.IsIndeterminate = false;
+
         }
 
         // make sure the log base is real number
@@ -164,18 +182,6 @@ namespace src
         {
             tbk01StausMsg.Text = strMsg;
             tbk01StausMsg.Foreground = color;
-            
-            // refresh the Windows UI 
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { this.UpdateLayout(); }));
-        }
-
-        // set the status of ProgressBar
-        public void M_setProgressBar(Boolean boolInput)
-        {
-            this.pbar01.IsIndeterminate = boolInput; 
-
-            // refresh the Windows UI 
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { this.UpdateLayout(); }));
         }
 
         // a event handler
