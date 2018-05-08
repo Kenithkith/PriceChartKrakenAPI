@@ -71,9 +71,9 @@ namespace src
 
         private void M_callKraKenAndGeneratePriceChart(string strPair)
         {
-            // start the ProgressBar bar under a thread
+            // switch on the ProgressBar bar under a thread
             if (!Dispatcher.CheckAccess())
-                Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => this.pbar01.IsIndeterminate = true));
+                Dispatcher.BeginInvoke(new Action(() => this.pbar01.IsIndeterminate = true));
             else
                 this.pbar01.IsIndeterminate = true ;
 
@@ -82,94 +82,116 @@ namespace src
             {
                 // display warming msg if case of need
                 if (!Dispatcher.CheckAccess())
-                    Dispatcher.Invoke(DispatcherPriority.Normal
-                                      , new Func<string, Brushes>(this.M_changeStatusBarMsG), "Log base shoud be a number.", Brushes.Red));
+                    Dispatcher.BeginInvoke(new Action(() => M_changeStatusBarMsG("Log base shoud be a number.", Brushes.Red)));
                 else
-                    this.pbar01.IsIndeterminate = true;
+                    this.M_changeStatusBarMsG("Log base shoud be a number.", Brushes.Red);
 
                 M_changeStatusBarMsG("Log base shoud be a number.", Brushes.Red);
+                this.pbar01.IsIndeterminate = false;
+
                 return;
             }
-            double dbLogBase = Double.Parse(tbx01LogBase.Text);
+            var temp = String.Empty;
+            Dispatcher.Invoke((ThreadStart)delegate { temp = tbx01LogBase.Text; });
+            double dbLogBase = Double.Parse(temp);
 
             // call KraKen API and convert its jason file to an object
             dynamic c_ohlc;
-            int intFailTime = 0;
-            do
-            {
-                // return if fail to call KraKen server for 5 times
-                if (intFailTime == 5)
-                    return;
-
-                System.Threading.Thread.Sleep(1000);
+            AnsycMethod atest = new AnsycMethod(this.M_test);
+            IAsyncResult iar = atest.BeginInvoke(strPair, dbLogBase, null, null);
+            // display msg when calling server
+            if (!Dispatcher.CheckAccess())
+                Dispatcher.BeginInvoke(new Action(() => M_changeStatusBarMsG("calling KraKen server...", Brushes.Black)));
+            else
                 this.M_changeStatusBarMsG("calling KraKen server...", Brushes.Black);
-                c_ohlc = this.Inf_KkClient.M_giveOhlc(strPair, dbLogBase);
-                intFailTime++;
+            // display error msg if calling the KraKen's server fail
+            c_ohlc = atest.EndInvoke(iar);
+            if(c_ohlc == null || c_ohlc.listError != null)
+            {
+                if (!Dispatcher.CheckAccess())
+                    Dispatcher.BeginInvoke(new Action(() => M_changeStatusBarMsG("network connection fail.", Brushes.Red)));
+                else
+                    this.M_changeStatusBarMsG("network connection fail.", Brushes.Red);
 
-            } while (c_ohlc == null || c_ohlc.listError != null);
+                Dispatcher.BeginInvoke(new Action(() => this.pbar01.IsIndeterminate = false));
+
+                return;
+            }
 
             // clear the pervious chart
-            if (this.liveChartLinear != null && this.liveChartLinear.Count > 0)
+            Application.Current.Dispatcher.Invoke((Action)delegate
             {
-                foreach (Series chart in this.liveChartLinear)
-                { this.liveChartLinear.Remove(chart); }
-            }
-            if (this.liveChartLog.Chart != null && this.liveChartLog.Count > 0)
-            {
-                foreach (Series chart in this.liveChartLog)
-                { this.liveChartLog.Remove(chart); }
-            }
-            if (this.liveChartCombo.Chart != null && this.liveChartCombo.Count > 0)
-            {
-                foreach (Series chart in this.liveChartCombo)
-                { this.liveChartCombo.Remove(chart); }
-            }
+                if (this.liveChartLinear != null && this.liveChartLinear.Count > 0)
+                {
+                    foreach (Series chart in this.liveChartLinear)
+                    { this.liveChartLinear.Remove(chart); }
+                }
+                if (this.liveChartLog.Chart != null && this.liveChartLog.Count > 0)
+                {
+                    foreach (Series chart in this.liveChartLog)
+                    { this.liveChartLog.Remove(chart); }
+                }
+                if (this.liveChartCombo.Chart != null && this.liveChartCombo.Count > 0)
+                {
+                    foreach (Series chart in this.liveChartCombo)
+                    { this.liveChartCombo.Remove(chart); }
 
-            // display the price chart
-            this.liveChartLinear.Add(new LineSeries()
-            {
-                Title = c_ohlc.strPair,
-                Values = ((List<double>)c_ohlc.listClosePrice).AsChartValues(),
-            });
-            this.liveChartLog.Add(new LineSeries()
-            {
-                Title = c_ohlc.strPair,
-                Values = ((List<double>)c_ohlc.listClosePriceInLog).AsChartValues(),
-            });
-            this.liveChartCombo.Add(new LineSeries()
-            {
-                Title = c_ohlc.strPair,
-                Values = ((List<double>)c_ohlc.listClosePrice).AsChartValues(),
-                ScalesYAt = 0
-            });
-            this.liveChartCombo.Add(new LineSeries()
-            {
-                Title = "log(price)",
-                Values = ((List<double>)c_ohlc.listClosePriceInLog).AsChartValues(),
-                ScalesYAt = 1
-            });
-            this.XValueLinear = this.XValueLog = this.XValueCombo = c_ohlc.listDate.ToArray();
-            this.OnPropertyChanged("XValueLinear");
-            this.OnPropertyChanged("XValueLog");
-            this.OnPropertyChanged("XValueCombo");
-            this.XFormatLinear = value => value.ToString();
-            this.XFormatLog = value => value.ToString();
-            this.XFormatCombo = value => value.ToString();
+                }
 
-            // update the chart
-            DataContext = this;
+                // display the price chart
+                this.liveChartLinear.Add(new LineSeries()
+                {
+                    Title = c_ohlc.strPair,
+                    Values = ((List<double>)c_ohlc.listClosePrice).AsChartValues(),
+                });
+                this.liveChartLog.Add(new LineSeries()
+                {
+                    Title = c_ohlc.strPair,
+                    Values = ((List<double>)c_ohlc.listClosePriceInLog).AsChartValues(),
+                });
+                this.liveChartCombo.Add(new LineSeries()
+                {
+                    Title = c_ohlc.strPair,
+                    Values = ((List<double>)c_ohlc.listClosePrice).AsChartValues(),
+                    ScalesYAt = 0
+                });
+                this.liveChartCombo.Add(new LineSeries()
+                {
+                    Title = "log(price)",
+                    Values = ((List<double>)c_ohlc.listClosePriceInLog).AsChartValues(),
+                    ScalesYAt = 1
+                });
+                this.XValueLinear = this.XValueLog = this.XValueCombo = c_ohlc.listDate.ToArray();
+                this.OnPropertyChanged("XValueLinear");
+                this.OnPropertyChanged("XValueLog");
+                this.OnPropertyChanged("XValueCombo");
+                this.XFormatLinear = value => value.ToString();
+                this.XFormatLog = value => value.ToString();
+                this.XFormatCombo = value => value.ToString();
 
-            this.M_changeStatusBarMsG("done.", Brushes.Black);
+                // update the chart
+                DataContext = this;
 
-            // end the ProgressBar bar
-            this.pbar01.IsIndeterminate = false;
+                this.M_changeStatusBarMsG("done.", Brushes.Black);
+
+                // end the ProgressBar bar
+                this.pbar01.IsIndeterminate = false;
+            });
+        }
+
+        public delegate dynamic AnsycMethod(string strPair, double dbLogBase);
+
+        public dynamic M_test(string strPair, double dbLogBase)
+        {
+            return this.Inf_KkClient.M_giveOhlc(strPair, dbLogBase);
 
         }
 
         // make sure the log base is real number
         private Boolean M_isLogBaseANum()
         {
-            var varUserInput = tbx01LogBase.Text;
+            var varUserInput = String.Empty;
+            Dispatcher.Invoke((ThreadStart)delegate { varUserInput = tbx01LogBase.Text; }); 
             double dbTemp;
             if(!Double.TryParse(varUserInput, out dbTemp))
                 return false;
@@ -183,6 +205,7 @@ namespace src
             tbk01StausMsg.Text = strMsg;
             tbk01StausMsg.Foreground = color;
         }
+
 
         // a event handler
         public event PropertyChangedEventHandler PropertyChanged;
