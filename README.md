@@ -19,7 +19,7 @@ To run the source, it has been recommended to use *Microsoft Visual Studio 2017*
 Make sure you have a KraKen API key firstly. <br/>
 The key should, at least, has the *'Export Data'* permission. <br/>
 <br/>
-edit the file of *`build\App.exe`*, and then import the key value to the file, i.e. <br/>
+edit the file of *`build\app.exe.config`*, and then import the key value to the file, i.e. <br/>
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
 <configuration>
